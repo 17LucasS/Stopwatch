@@ -33,6 +33,11 @@ android {
 
 dependencies {
 
+    val lifecycle_version = "2.7.0"
+    // ViewModel
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version")
+    // LiveData
+    implementation ("androidx.lifecycle:lifecycle-livedata:$lifecycle_version")
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")
