@@ -10,7 +10,7 @@ import java.util.List;
 
 public class MainActivityViewModel extends AndroidViewModel {
 
-    StopWatchRunInterface runInterface;
+    StopWatchRunInterface stopWatchRunInterface;
     Repository repository;
     private LiveData<List<Time>> time;
     public MainActivityViewModel(@NonNull Application application) {
@@ -20,7 +20,7 @@ public class MainActivityViewModel extends AndroidViewModel {
         setRunInterface();
     }
     public void setRunInterface(){
-        this.runInterface = repository.setStopwatchRunInterface();
+        this.stopWatchRunInterface = repository.setStopwatchRunInterface();
     }
 
     public LiveData<List<Time>> getTime(){

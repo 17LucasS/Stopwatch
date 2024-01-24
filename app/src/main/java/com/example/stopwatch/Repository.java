@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Repository {
 
-    StopWatchRunInterface runInterface;
+    StopWatchRunInterface stopWatchRunInterface;
 
     public StopwatchRun stopwatchRun;
     private LiveData<List<Time>> time;
@@ -16,8 +16,8 @@ public class Repository {
     }
 
     public StopWatchRunInterface setStopwatchRunInterface(){
-        this.runInterface = stopwatchRun;
-        return runInterface;
+        this.stopWatchRunInterface = stopwatchRun;
+        return stopWatchRunInterface;
     }
 
     public LiveData<List<Time>> getTime(){

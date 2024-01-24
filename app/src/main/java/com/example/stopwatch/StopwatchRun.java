@@ -10,14 +10,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class StopwatchRun implements StopWatchRunInterface {
-
-
     private static StopwatchRun instance;
     private static ScheduledExecutorService service;
     private boolean doRunning;
     private long millisecond;
     private long tMillisecond;
-
     private MutableLiveData<List<Time>> setTimeList = new MutableLiveData<>();
 
     public static synchronized StopwatchRun getInstance() {
@@ -28,11 +25,6 @@ public class StopwatchRun implements StopWatchRunInterface {
             service = Executors.newScheduledThreadPool(1);
         }
         return instance;
-    }
-
-
-    public LiveData<List<Time>> getTimeList() {
-        return setTimeList;
     }
 
     @Override
@@ -55,6 +47,10 @@ public class StopwatchRun implements StopWatchRunInterface {
         } else {
             service.shutdown();
         }
+    }
+
+    public LiveData<List<Time>> getTimeList() {
+        return setTimeList;
     }
 
     @Override

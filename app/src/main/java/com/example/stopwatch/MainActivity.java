@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainViewModel.runInterface.sedDoRunning(true);
-                mainViewModel.runInterface.startStopWatchRunning();
+                mainViewModel.stopWatchRunInterface.sedDoRunning(true);
+                mainViewModel.stopWatchRunInterface.startStopWatchRunning();
             }
         });
     }
@@ -51,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
         catchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainViewModel.runInterface.sedDoRunning(false);
+                mainViewModel.stopWatchRunInterface.sedDoRunning(false);
             }
         });
     }
 
     @Override
     public void finish() {
-        mainViewModel.runInterface.shutDownExecutors();
+        mainViewModel.stopWatchRunInterface.shutDownExecutors();
         super.finish();
     }
 
