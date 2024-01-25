@@ -1,5 +1,8 @@
 package com.example.stopwatch;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -15,7 +18,7 @@ public class StopwatchRun implements StopWatchRunInterface {
     private boolean doRunning;
     private long millisecond;
     private long tMillisecond;
-    private MutableLiveData<List<Time>> setTimeList = new MutableLiveData<>();
+    private MutableLiveData<String> setTimeList = new MutableLiveData<>();
 
     public static synchronized StopwatchRun getInstance() {
         if (instance == null) {
@@ -37,19 +40,20 @@ public class StopwatchRun implements StopWatchRunInterface {
                 int minutes = (int) ((tMillisecond % 3600000) / 60000);
                 int seconds = (int) ((tMillisecond % 60000) / 1000);
                 int milliseconds = (int) (tMillisecond % 1000) / 10;
-                ArrayList<Time> list = new ArrayList<>();
-                list.add(new Time(hours, minutes, seconds, milliseconds));
-                setTimeList.postValue(list);
+
+                @SuppressLint("DefaultLocale")
+                String time = String.format("%02d:%02d:%02d:%02d",hours,minutes,seconds,milliseconds);
+                setTimeList.postValue(time);
             }
         };
         if (doRunning) {
-            service.scheduleAtFixedRate(task, 0, 30, TimeUnit.MILLISECONDS);
+            service.scheduleAtFixedRate(task, 0, 70, TimeUnit.MILLISECONDS);
         } else {
             service.shutdown();
         }
     }
 
-    public LiveData<List<Time>> getTimeList() {
+    public LiveData<String> getTimeList() {
         return setTimeList;
     }
 
@@ -77,4 +81,11 @@ public class StopwatchRun implements StopWatchRunInterface {
         }
     }
 
+    public boolean isDoRunning() {
+        return doRunning;
+    }
+
+    public long gettMillisecond() {
+        return tMillisecond;
+    }
 }

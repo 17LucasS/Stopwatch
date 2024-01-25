@@ -1,26 +1,64 @@
 package com.example.stopwatch;
 
+import android.app.Application;
+
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
 public class Repository {
 
-    StopWatchRunInterface stopWatchRunInterface;
-
-    public StopwatchRun stopwatchRun;
-    private LiveData<List<Time>> time;
-    public Repository(){
+    private final SharedPreferenceData sharedPreferenceData;
+    private final StopwatchRun stopwatchRun;
+    private final LiveData<String> time;
+    public Repository(Application application){
         stopwatchRun = StopwatchRun.getInstance();
+        sharedPreferenceData = SharedPreferenceData.getInstance(application);
         time = stopwatchRun.getTimeList();
     }
 
-    public StopWatchRunInterface setStopwatchRunInterface(){
-        this.stopWatchRunInterface = stopwatchRun;
-        return stopWatchRunInterface;
+    public StopWatchRunInterface setRunInterface(){
+        return stopwatchRun;
     }
 
-    public LiveData<List<Time>> getTime(){
+    public SharedPreferenceInterface setSharedPrefInterface(){
+        return sharedPreferenceData;
+    }
+
+    public String sharedPreferenceGetStarButton(){
+        return sharedPreferenceData.sharedPreferenceGetStarButton();
+    }
+
+    public String sharedPreferenceGetCatchButton(){
+        return sharedPreferenceData.sharedPreferenceGetCatchButton();
+    }
+
+    public String sharedPreferenceGetTime(){
+        return sharedPreferenceData.sharedPreferenceGetTime();
+    }
+
+    public boolean sharedPreferenceIsRunning(){
+        return sharedPreferenceData.sharedPreferenceIsRunning();
+    }
+
+    public long sharedPreferenceGetMillisecond() {
+        return sharedPreferenceData.sharedPreferenceGetMillisecond();
+    }
+
+    public boolean sharedPreferenceGetCatchButtonIsEnable() {
+        return sharedPreferenceData.sharedPreferenceGetCatchButtonIsEnable();
+    }
+
+    public boolean isDoRunning(){
+        return stopwatchRun.isDoRunning();
+    }
+
+    public Long gettMillisecond(){
+        return stopwatchRun.gettMillisecond();
+    }
+
+
+    public LiveData<String> getTime(){
         return time;
     }
 
