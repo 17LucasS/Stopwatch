@@ -55,8 +55,8 @@ public class MainActivityViewModel extends AndroidViewModel {
         return repository.isDoRunning();
     }
 
-    public Long gettMillisecond(){
-        return repository.gettMillisecond();
+    public Long getTMillisecond(){
+        return repository.getTMillisecond();
     }
 
 

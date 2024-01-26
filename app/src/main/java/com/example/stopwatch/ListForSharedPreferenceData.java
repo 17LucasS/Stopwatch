@@ -1,10 +1,10 @@
 package com.example.stopwatch;
 
 public class ListForSharedPreferenceData {
-    private String startButton;
-    private String catchButton;
-    private long time;
-    private boolean doRunning;
+    private final String startButton;
+    private final String catchButton;
+    private final long time;
+    private final boolean doRunning;
 
     public ListForSharedPreferenceData(String startButton, String catchButton, long time, boolean doRunning) {
         this.startButton = startButton;

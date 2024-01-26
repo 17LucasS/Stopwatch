@@ -4,7 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
-import java.util.List;
+
 
 public class Repository {
 
@@ -53,8 +53,8 @@ public class Repository {
         return stopwatchRun.isDoRunning();
     }
 
-    public Long gettMillisecond(){
-        return stopwatchRun.gettMillisecond();
+    public Long getTMillisecond(){
+        return stopwatchRun.getTMillisecond();
     }
 
 

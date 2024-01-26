@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private void stopStopWatchRun() {
         catchButton.setText(getString(R.string.reset_string));
         startButton.setText(getString(R.string.resume_string));
-        milliSecond = mainViewModel.gettMillisecond();
+        milliSecond = mainViewModel.getTMillisecond();
         mainViewModel.stopWatchRunInterface.sedDoRunning(false);
     }
 
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
         String time = displayStopwatch.getText().toString();
         boolean doRun = mainViewModel.isDoRunning();
         boolean catchBEnable = catchButton.isEnabled();
-        long millSecond = mainViewModel.gettMillisecond();
+        long millSecond = mainViewModel.getTMillisecond();
         mainViewModel.savaData(startB, catchB, time, doRun,catchBEnable, millSecond);
         super.onStop();
     }

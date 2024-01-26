@@ -1,13 +1,10 @@
 package com.example.stopwatch;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +15,7 @@ public class StopwatchRun implements StopWatchRunInterface {
     private boolean doRunning;
     private long millisecond;
     private long tMillisecond;
-    private MutableLiveData<String> setTimeList = new MutableLiveData<>();
+    private final MutableLiveData<String> setTimeList = new MutableLiveData<>();
 
     public static synchronized StopwatchRun getInstance() {
         if (instance == null) {
@@ -85,7 +82,7 @@ public class StopwatchRun implements StopWatchRunInterface {
         return doRunning;
     }
 
-    public long gettMillisecond() {
+    public long getTMillisecond() {
         return tMillisecond;
     }
 }

@@ -3,10 +3,8 @@ package com.example.stopwatch;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SharedPreferenceData implements SharedPreferenceInterface {
@@ -78,7 +76,7 @@ public class SharedPreferenceData implements SharedPreferenceInterface {
     }
 
     public long sharedPreferenceGetMillisecond() {
-        return sharedPreferenceData.getLong(MILLISECOND,0);
+        return sharedPreferenceData.getLong(MILLISECOND, 0);
     }
 
 }
