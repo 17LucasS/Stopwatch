@@ -2,11 +2,6 @@ package com.example.stopwatch;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-
-import androidx.lifecycle.MutableLiveData;
-
-import java.util.List;
-
 public class SharedPreferenceData implements SharedPreferenceInterface {
 
     private static SharedPreferenceData instance;
@@ -18,8 +13,6 @@ public class SharedPreferenceData implements SharedPreferenceInterface {
     public static final String MILLISECOND = "millisecond";
     private static SharedPreferences sharedPreferenceData;
     private static final String PREFS_NAME = "shared_data";
-
-    private MutableLiveData<List<ListForSharedPreferenceData>> mutableLiveData;
 
     public static synchronized SharedPreferenceData getInstance(Context context) {
         if (instance == null) {

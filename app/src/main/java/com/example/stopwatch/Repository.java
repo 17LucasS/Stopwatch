@@ -4,40 +4,49 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import java.util.List;
 
 
 public class Repository {
+    public MeasurementInterface measurementInterface;
 
     private final SharedPreferenceData sharedPreferenceData;
     private final StopwatchRun stopwatchRun;
     private final LiveData<String> time;
-    public Repository(Application application){
+    private final LiveData<List<NoteMeasurement>> listMeasurement;
+
+    public Repository(Application application) {
         stopwatchRun = StopwatchRun.getInstance();
         sharedPreferenceData = SharedPreferenceData.getInstance(application);
         time = stopwatchRun.getTimeList();
+
+        ExecutorDataBase executorDataBase = ExecutorDataBase.getInstance();
+        executorDataBase.createDataBase(application);
+        listMeasurement = executorDataBase.getAllNotesMeasurement();
+        measurementInterface = executorDataBase;
     }
 
-    public StopWatchRunInterface setRunInterface(){
+    public StopWatchRunInterface setRunInterface() {
         return stopwatchRun;
     }
 
-    public SharedPreferenceInterface setSharedPrefInterface(){
+    public SharedPreferenceInterface setSharedPrefInterface() {
         return sharedPreferenceData;
     }
 
-    public String sharedPreferenceGetStarButton(){
+    public String sharedPreferenceGetStarButton() {
         return sharedPreferenceData.sharedPreferenceGetStarButton();
     }
 
-    public String sharedPreferenceGetCatchButton(){
+    public String sharedPreferenceGetCatchButton() {
         return sharedPreferenceData.sharedPreferenceGetCatchButton();
     }
 
-    public String sharedPreferenceGetTime(){
+    public String sharedPreferenceGetTime() {
         return sharedPreferenceData.sharedPreferenceGetTime();
     }
 
-    public boolean sharedPreferenceIsRunning(){
+    public boolean sharedPreferenceIsRunning() {
         return sharedPreferenceData.sharedPreferenceIsRunning();
     }
 
@@ -49,17 +58,21 @@ public class Repository {
         return sharedPreferenceData.sharedPreferenceGetCatchButtonIsEnable();
     }
 
-    public boolean isDoRunning(){
+    public boolean isDoRunning() {
         return stopwatchRun.isDoRunning();
     }
 
-    public Long getTMillisecond(){
+    public Long getTMillisecond() {
         return stopwatchRun.getTMillisecond();
     }
 
 
-    public LiveData<String> getTime(){
+    public LiveData<String> getTime() {
         return time;
+    }
+
+    public LiveData<List<NoteMeasurement>> getAllMeasurements() {
+        return listMeasurement;
     }
 
 }

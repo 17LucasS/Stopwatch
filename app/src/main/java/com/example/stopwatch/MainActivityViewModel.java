@@ -6,7 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import java.util.List;
+
 public class MainActivityViewModel extends AndroidViewModel {
+
+    public MeasurementInterface measurementInterface;
+    private final LiveData<List<NoteMeasurement>> listMeasurement;
 
     public SharedPreferenceInterface sharedPrefInterface;
     public StopWatchRunInterface stopWatchRunInterface;
@@ -18,6 +23,9 @@ public class MainActivityViewModel extends AndroidViewModel {
         time = repository.getTime();
         setRunInterface();
         setSharedPrefInterface();
+
+        listMeasurement = repository.getAllMeasurements();
+        measurementInterface = repository.measurementInterface;
     }
 
     public String sharedPreferenceGetStarButton(){
@@ -82,10 +90,11 @@ public class MainActivityViewModel extends AndroidViewModel {
         sharedPrefInterface.saveData(SharedPreferenceData.CATCH_BUTTON_ENABLE,catchBEnable);
     }
 
-
-
     public LiveData<String> getTime(){
         return time;
+    }
+    public LiveData<List<NoteMeasurement>> getAllMeasurements(){
+        return listMeasurement;
     }
 
 }

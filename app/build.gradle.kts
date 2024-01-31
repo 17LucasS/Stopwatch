@@ -9,6 +9,7 @@ android {
     defaultConfig {
         applicationId = "com.example.stopwatch"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -32,6 +33,11 @@ android {
 }
 
 dependencies {
+
+    val room_version = "2.6.1"
+    implementation ("androidx.room:room-runtime:$room_version")
+    annotationProcessor ("androidx.room:room-compiler:$room_version")
+
 
     val lifecycle_version = "2.7.0"
     // ViewModel
