@@ -1,6 +1,7 @@
 package com.example.stopwatch;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -14,8 +15,11 @@ public class StopwatchRun implements StopWatchRunInterface {
     private static ScheduledExecutorService service;
     private boolean doRunning;
     private long millisecond;
+    private long secondMillisecond, tSecondMillisecond;
     private long tMillisecond;
+    private boolean doRunSecondMillisecond;
     private final MutableLiveData<String> setTimeList = new MutableLiveData<>();
+    private final MutableLiveData<String> setSecondTimeList = new MutableLiveData<>();
 
     public static synchronized StopwatchRun getInstance() {
         if (instance == null) {
@@ -37,9 +41,21 @@ public class StopwatchRun implements StopWatchRunInterface {
                 int minutes = (int) ((tMillisecond % 3600000) / 60000);
                 int seconds = (int) ((tMillisecond % 60000) / 1000);
                 int milliseconds = (int) (tMillisecond % 1000) / 10;
+                if (doRunSecondMillisecond) {
+                    long startMill = System.currentTimeMillis();
+                    tSecondMillisecond = startMill - secondMillisecond;
+                    int hou = (int) (tSecondMillisecond / 3600000);
+                    int min = (int) ((tSecondMillisecond  % 3600000) / 60000);
+                    int sec = (int) ((tSecondMillisecond % 60000) / 1000);
+                    int milli = (int) (tSecondMillisecond  % 1000) / 10;
+
+                    @SuppressLint("DefaultLocale")
+                    String secondTime = String.format("%02d:%02d:%02d:%02d", hou, min, sec, milli);
+                    setSecondTimeList.postValue(secondTime);
+                }
 
                 @SuppressLint("DefaultLocale")
-                String time = String.format("%02d:%02d:%02d:%02d",hours,minutes,seconds,milliseconds);
+                String time = String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, milliseconds);
                 setTimeList.postValue(time);
             }
         };
@@ -54,14 +70,29 @@ public class StopwatchRun implements StopWatchRunInterface {
         return setTimeList;
     }
 
+    public LiveData<String> getSecondTimeList() {
+        return setSecondTimeList;
+    }
+
+
     @Override
     public void sedDoRunning(Boolean doRunning) {
         this.doRunning = doRunning;
     }
 
     @Override
+    public void setDoRunSecondMillisecond(boolean doRunSecondMillisecond) {
+        this.doRunSecondMillisecond = doRunSecondMillisecond;
+    }
+
+    @Override
     public void setMillisecond(long millisecond) {
         this.millisecond = millisecond;
+    }
+
+    @Override
+    public void setSecondMillisecond(long millisecond) {
+        this.secondMillisecond = millisecond;
     }
 
     @Override
@@ -82,7 +113,15 @@ public class StopwatchRun implements StopWatchRunInterface {
         return doRunning;
     }
 
+    public boolean isDoRunSecondMillisecond() {
+        return doRunSecondMillisecond;
+    }
+
     public long getTMillisecond() {
         return tMillisecond;
+    }
+
+    public long getTSecondMill() {
+        return tSecondMillisecond;
     }
 }

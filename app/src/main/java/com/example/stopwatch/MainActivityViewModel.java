@@ -17,10 +17,12 @@ public class MainActivityViewModel extends AndroidViewModel {
     public StopWatchRunInterface stopWatchRunInterface;
      private final Repository repository;
     private final LiveData<String> time;
+    private final LiveData<String> secondTime;
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         this.repository = new Repository(application);
         time = repository.getTime();
+        secondTime = repository.getSecondTimeList();
         setRunInterface();
         setSharedPrefInterface();
 
@@ -67,11 +69,19 @@ public class MainActivityViewModel extends AndroidViewModel {
         return repository.getTMillisecond();
     }
 
+    public long getTSecondMill(){
+        return repository.getTSecondMill();
+    }
+
 
     public void startStopWatchRun(){
         stopWatchRunInterface.setMillisecond(System.currentTimeMillis());
         stopWatchRunInterface.sedDoRunning(true);
         stopWatchRunInterface.startStopWatchRunning();
+    }
+
+    public void resetStopWatchRun(){
+        stopWatchRunInterface.sedDoRunning(false);
     }
 
     public void resumeStopWatchRun(Long millisecond){
@@ -92,6 +102,10 @@ public class MainActivityViewModel extends AndroidViewModel {
 
     public LiveData<String> getTime(){
         return time;
+    }
+
+    public LiveData<String> getSecondTimeList(){
+        return secondTime;
     }
     public LiveData<List<NoteMeasurement>> getAllMeasurements(){
         return listMeasurement;

@@ -13,12 +13,14 @@ public class Repository {
     private final SharedPreferenceData sharedPreferenceData;
     private final StopwatchRun stopwatchRun;
     private final LiveData<String> time;
+    private final LiveData<String> secondTime;
     private final LiveData<List<NoteMeasurement>> listMeasurement;
 
     public Repository(Application application) {
         stopwatchRun = StopwatchRun.getInstance();
         sharedPreferenceData = SharedPreferenceData.getInstance(application);
         time = stopwatchRun.getTimeList();
+        secondTime = stopwatchRun.getSecondTimeList();
 
         ExecutorDataBase executorDataBase = ExecutorDataBase.getInstance();
         executorDataBase.createDataBase(application);
@@ -65,10 +67,16 @@ public class Repository {
     public Long getTMillisecond() {
         return stopwatchRun.getTMillisecond();
     }
+    public long getTSecondMill(){
+        return stopwatchRun.getTSecondMill();
+    }
 
 
     public LiveData<String> getTime() {
         return time;
+    }
+    public LiveData<String> getSecondTimeList(){
+        return secondTime;
     }
 
     public LiveData<List<NoteMeasurement>> getAllMeasurements() {

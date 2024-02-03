@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,8 +20,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView displayStopwatch;
-    private Toolbar toolbar;
+    private TextView timeStopWatch, catchTime, bestTime;
     private Button startButton, catchButton;
     private MainActivityViewModel mainViewModel;
     private long milliSecond;
@@ -28,13 +28,15 @@ public class MainActivity extends AppCompatActivity {
     private MainAdapterRecyclerView mainAdapter;
     private MutableLiveData<List<NoteMeasurement>> mutableLiveData;
     private FloatingActionButton floatingActionButton;
+    private boolean firstTimeRun = true;
+    private long saveMill;
 
     @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setSupportActionBar(toolbar);
+
 
         viewInitialization();
         setAdapterRecyclerView();
@@ -42,9 +44,9 @@ public class MainActivity extends AppCompatActivity {
         setObserverTimes();
         setObserverGetAllMeasurements();
 
-        if (savedInstanceState != null) {
-            loadDataFromSharedPreference();
-        }
+        mainViewModel.getSecondTimeList().observe(this, s -> catchTime.setText(s));
+
+        loadDataFromSharedPreference();
 
         setStartButton();
         setCatchButton();
@@ -52,7 +54,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setObserverTimes() {
-        mainViewModel.getTime().observe(this, times -> displayStopwatch.setText(times));
+        mainViewModel.getTime().observe(this, times -> {
+            if (firstTimeRun) {
+                firstTimeRun = false;
+                return;
+            }
+            timeStopWatch.setText(times);
+        });
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -60,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel.getAllMeasurements().observe(this, noteMeasurements -> {
             mutableLiveData.setValue(noteMeasurements);
             mainAdapter.setList(mutableLiveData.getValue());
+
             if (mutableLiveData.getValue() != null && !mutableLiveData.getValue().isEmpty()) {
                 mainAdapter.notifyItemInserted(mutableLiveData.getValue().size() - 1);
             } else {
@@ -84,12 +93,13 @@ public class MainActivity extends AppCompatActivity {
         startButton.setText(startB);
         catchButton.setText(catchB);
         catchButton.setEnabled(catchBEnable);
-        displayStopwatch.setText(time);
+        timeStopWatch.setText(time);
+        Log.v("LOAD", time);
         milliSecond = mainViewModel.sharedPreferenceGetMillisecond();
         if (doRun) {
             mainViewModel.stopWatchRunInterface.setMillisecond(System.currentTimeMillis() - milliSecond);
-            mainViewModel.stopWatchRunInterface.startStopWatchRunning();
             mainViewModel.stopWatchRunInterface.sedDoRunning(true);
+            mainViewModel.stopWatchRunInterface.startStopWatchRunning();
         }
     }
 
@@ -97,8 +107,11 @@ public class MainActivity extends AppCompatActivity {
         milliSecond = 0;
         floatingActionButton = findViewById(R.id.main_floatingActionButton);
         recyclerView = findViewById(R.id.main_recyclerView);
-        toolbar = findViewById(R.id.main_activity_toolbar);
-        displayStopwatch = findViewById(R.id.textView_display_stopwatch);
+        Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
+        setSupportActionBar(toolbar);
+        bestTime = findViewById(R.id.best_time);
+        timeStopWatch = findViewById(R.id.textView_display_stopwatch);
+        catchTime = findViewById(R.id.textView_second_time);
         startButton = findViewById(R.id.start_button);
         catchButton = findViewById(R.id.catch_button);
         catchButton.setEnabled(false);
@@ -128,15 +141,43 @@ public class MainActivity extends AppCompatActivity {
         catchButton.setOnClickListener(v -> {
             String catchB = catchButton.getText().toString();
             if (catchB.equals(getString(R.string.reset_string))) {
-                startButton.setText(getString(R.string.start_string));
-                catchButton.setText(getString(R.string.catch_string));
-                catchButton.setEnabled(false);
-                displayStopwatch.setText(getString(R.string.default_settings_text_stopwatch));
-                mainViewModel.measurementInterface.deleteMeasurement();
+                mainViewModel.resetStopWatchRun();
+                setDefaultTextForViewAndVariables();
+
             } else if (catchB.equals(getString(R.string.catch_string))) {
-                mainViewModel.measurementInterface.insertMeasurement(new NoteMeasurement(displayStopwatch.getText().toString()));
+                String insertTime;
+                if (mutableLiveData.getValue() == null) {
+                    insertTime = timeStopWatch.getText().toString();
+                } else {
+                    insertTime = catchTime.getText().toString();
+                }
+                mainViewModel.measurementInterface.insertMeasurement(new NoteMeasurement(insertTime));
+                mainViewModel.stopWatchRunInterface.setDoRunSecondMillisecond(true);
+                mainViewModel.stopWatchRunInterface.setSecondMillisecond(System.currentTimeMillis());
+
+                if (mainAdapter.getItemCount() == 0) {
+                    saveMill = mainViewModel.getTMillisecond();
+                    bestTime.setText(timeStopWatch.getText().toString());
+                }else {
+                    if (mainViewModel.getTSecondMill() < saveMill) {
+                        saveMill = mainViewModel.getTSecondMill();
+                        bestTime.setText(catchTime.getText());
+                    }
+                }
+
+
             }
         });
+    }
+
+    private void setDefaultTextForViewAndVariables() {
+        startButton.setText(getString(R.string.start_string));
+        catchButton.setText(getString(R.string.catch_string));
+        catchButton.setEnabled(false);
+        timeStopWatch.setText(getString(R.string.default_settings_text_stopwatch));
+        bestTime.setText(R.string.default_settings_text_stopwatch);
+        catchTime.setText(R.string.default_settings_text_stopwatch);
+        mainViewModel.measurementInterface.deleteMeasurement();
     }
 
     private void startStopWatchRun() {
@@ -163,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         String startB = startButton.getText().toString();
         String catchB = catchButton.getText().toString();
-        String time = displayStopwatch.getText().toString();
+        String time = timeStopWatch.getText().toString();
         boolean doRun = mainViewModel.isDoRunning();
         boolean catchBEnable = catchButton.isEnabled();
         long millSecond = mainViewModel.getTMillisecond();
