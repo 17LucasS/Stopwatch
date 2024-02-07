@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Stopwatch</string>
+    <string name="start_string">Start</string>
+    <string name="catch_string">Pomiar</string>
+    <string name="stop_string">Stop</string>
+    <string name="resume_string">Wznów</string>
+    <string name="reset_string">Resetuj</string>
+    <string name="string_time">%02d:%02d:%02d:%02d</string>
+    <string name="default_settings_text_stopwatch">00:00:00:00</string>
+    <string name="save_records">Save records</string>
 </resources>
