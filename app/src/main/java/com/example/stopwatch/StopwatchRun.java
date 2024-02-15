@@ -1,7 +1,6 @@
 package com.example.stopwatch;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -10,16 +9,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class StopwatchRun implements StopWatchRunInterface {
+public class StopwatchRun {
     private static StopwatchRun instance;
     private static ScheduledExecutorService service;
-    private boolean doRunning;
-    private long millisecond;
-    private long secondMillisecond, tSecondMillisecond;
-    private long tMillisecond;
-    private boolean doRunSecondMillisecond;
-    private final MutableLiveData<String> setTimeList = new MutableLiveData<>();
-    private final MutableLiveData<String> setSecondTimeList = new MutableLiveData<>();
+    private boolean timeRunning;
+    private long userMillisecond;
+    private long catchUserMillisecond, catchMillisecond;
+    private long timeMillisecond;
+    private boolean catchRunning;
+    private final MutableLiveData<String> setTime = new MutableLiveData<>();
+    private final MutableLiveData<String> setCatchTime = new MutableLiveData<>();
 
     public static synchronized StopwatchRun getInstance() {
         if (instance == null) {
@@ -31,72 +30,71 @@ public class StopwatchRun implements StopWatchRunInterface {
         return instance;
     }
 
-    @Override
     public void startStopWatchRunning() {
         Runnable task = () -> {
-            if (doRunning) {
+            if (timeRunning) {
                 long startMillisecond = System.currentTimeMillis();
-                tMillisecond = startMillisecond - millisecond;
-                int hours = (int) (tMillisecond / 3600000);
-                int minutes = (int) ((tMillisecond % 3600000) / 60000);
-                int seconds = (int) ((tMillisecond % 60000) / 1000);
-                int milliseconds = (int) (tMillisecond % 1000) / 10;
-                if (doRunSecondMillisecond) {
+                timeMillisecond = startMillisecond - userMillisecond;
+                int hours = (int) (timeMillisecond / 3600000);
+                int minutes = (int) ((timeMillisecond % 3600000) / 60000);
+                int seconds = (int) ((timeMillisecond % 60000) / 1000);
+                int milliseconds = (int) (timeMillisecond % 1000) / 10;
+                if (catchRunning) {
                     long startMill = System.currentTimeMillis();
-                    tSecondMillisecond = startMill - secondMillisecond;
-                    int hou = (int) (tSecondMillisecond / 3600000);
-                    int min = (int) ((tSecondMillisecond  % 3600000) / 60000);
-                    int sec = (int) ((tSecondMillisecond % 60000) / 1000);
-                    int milli = (int) (tSecondMillisecond  % 1000) / 10;
+                    catchMillisecond = startMill - catchUserMillisecond;
+                    int hou = (int) (catchMillisecond / 3600000);
+                    int min = (int) ((catchMillisecond % 3600000) / 60000);
+                    int sec = (int) ((catchMillisecond % 60000) / 1000);
+                    int milli = (int) (catchMillisecond % 1000) / 10;
 
                     @SuppressLint("DefaultLocale")
                     String secondTime = String.format("%02d:%02d:%02d:%02d", hou, min, sec, milli);
-                    setSecondTimeList.postValue(secondTime);
+                    setCatchTime.postValue(secondTime);
                 }
 
                 @SuppressLint("DefaultLocale")
                 String time = String.format("%02d:%02d:%02d:%02d", hours, minutes, seconds, milliseconds);
-                setTimeList.postValue(time);
+                setTime.postValue(time);
             }
         };
-        if (doRunning) {
+        if (timeRunning) {
             service.scheduleAtFixedRate(task, 0, 70, TimeUnit.MILLISECONDS);
         } else {
             service.shutdown();
         }
     }
 
-    public LiveData<String> getTimeList() {
-        return setTimeList;
+    public long getCatchUserMillisecond() {
+        return catchUserMillisecond;
     }
 
-    public LiveData<String> getSecondTimeList() {
-        return setSecondTimeList;
+    public LiveData<String> getTimeLiveData() {
+        return setTime;
+    }
+
+    public LiveData<String> getCatchTimeLiveData() {
+        return setCatchTime;
     }
 
 
-    @Override
-    public void sedDoRunning(Boolean doRunning) {
-        this.doRunning = doRunning;
+    public void setTimeRunning(Boolean timeRunning) {
+        this.timeRunning = timeRunning;
     }
 
-    @Override
-    public void setDoRunSecondMillisecond(boolean doRunSecondMillisecond) {
-        this.doRunSecondMillisecond = doRunSecondMillisecond;
+
+    public void setCatchRunning(boolean catchRunning) {
+        this.catchRunning = catchRunning;
     }
 
-    @Override
-    public void setMillisecond(long millisecond) {
-        this.millisecond = millisecond;
+    public void setTimeUserMillisecond(long timeMillisecond) {
+        this.userMillisecond = timeMillisecond;
     }
 
-    @Override
-    public void setSecondMillisecond(long millisecond) {
-        this.secondMillisecond = millisecond;
+    public void setCatchUserMillisecond(long catchUserMillisecond) {
+        this.catchUserMillisecond = catchUserMillisecond;
     }
 
-    @Override
-    public void shutDownExecutors() {
+    public void shutDownStopWatchExecutors() {
         service.shutdown();
         if (service != null) {
             try {
@@ -109,19 +107,23 @@ public class StopwatchRun implements StopWatchRunInterface {
         }
     }
 
-    public boolean isDoRunning() {
-        return doRunning;
+    public boolean getTimeRunning() {
+        return timeRunning;
     }
 
-    public boolean isDoRunSecondMillisecond() {
-        return doRunSecondMillisecond;
+    public boolean getCatchRunning() {
+        return catchRunning;
     }
 
-    public long getTMillisecond() {
-        return tMillisecond;
+    public long getTimeMillisecond() {
+        return timeMillisecond;
     }
 
-    public long getTSecondMill() {
-        return tSecondMillisecond;
+    public long getCatchMillisecond() {
+        return catchMillisecond;
+    }
+
+    public long getUserMillisecond() {
+        return userMillisecond;
     }
 }

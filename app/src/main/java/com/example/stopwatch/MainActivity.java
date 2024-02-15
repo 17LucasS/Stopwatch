@@ -8,27 +8,28 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
     private TextView timeStopWatch, catchTime, bestTime;
     private Button startButton, catchButton;
     private MainActivityViewModel mainViewModel;
-    private long milliSecond;
+    private long timeMillisecond, catchTimeMillisecond;
     private RecyclerView recyclerView;
     private MainAdapterRecyclerView mainAdapter;
-    private MutableLiveData<List<NoteMeasurement>> mutableLiveData;
+    private MutableLiveData<List<CatchTimeTable>> mutableLiveData;
     private FloatingActionButton floatingActionButton;
-    private boolean firstTimeRun = true;
+    private boolean firstTimeRun;
     private long saveMill;
 
     @SuppressLint("NotifyDataSetChanged")
@@ -36,25 +37,44 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         viewInitialization();
         setAdapterRecyclerView();
-
-        setObserverTimes();
-        setObserverGetAllMeasurements();
-
-        mainViewModel.getSecondTimeList().observe(this, s -> catchTime.setText(s));
-
-        loadDataFromSharedPreference();
-
+        setMainDataObserver();
+        setTimeObserver();
+        setCatchTimeObserver();
+        setCatchListObserver();
         setStartButton();
         setCatchButton();
         setFloatingActionButton();
     }
 
-    private void setObserverTimes() {
-        mainViewModel.getTime().observe(this, times -> {
+    private void setCatchTimeObserver() {
+        mainViewModel.getCatchTimeLiveData().observe(this, s -> catchTime.setText(s));
+    }
+
+    private void setMainDataObserver() {
+        mainViewModel.getMainDataList().observe(this, mainActDataTables -> {
+            if (mainActDataTables != null && !mainActDataTables.isEmpty()) {
+                MainActDataTable table = mainActDataTables.get(mainActDataTables.size() - 1);
+                timeStopWatch.setText(table.getTime());
+                startButton.setText(table.getStartButton());
+                catchButton.setText(table.getCatchButt());
+                catchButton.setEnabled(table.isCatchTimeIsEnable());
+                bestTime.setText(table.getBestTime());
+                timeMillisecond = table.getTimeMillisecond();
+                catchTimeMillisecond = table.getCatchMillisecond();
+                saveMill = table.getSaveMill();
+                catchTime.setText(table.getCatchTime());
+                mainViewModel.setupStopWatchWhenAppStartRun(table.isTimeRunning(), table.getUserMillisecond());
+
+                mainViewModel.setupStopWatchWhenAppStartRunCatch(table.isCatchRunning(), table.getCatchMillisecond(), table.getCatchUserMillisecond());
+
+            }
+        });
+    }
+
+    private void setTimeObserver() {
+        mainViewModel.getTimeLiveData().observe(this, times -> {
             if (firstTimeRun) {
                 firstTimeRun = false;
                 return;
@@ -64,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private void setObserverGetAllMeasurements() {
-        mainViewModel.getAllMeasurements().observe(this, noteMeasurements -> {
+    private void setCatchListObserver() {
+        mainViewModel.getCatchList().observe(this, noteMeasurements -> {
             mutableLiveData.setValue(noteMeasurements);
             mainAdapter.setList(mutableLiveData.getValue());
 
@@ -78,33 +98,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setAdapterRecyclerView() {
-        mutableLiveData.setValue(mainViewModel.getAllMeasurements().getValue());
+        mutableLiveData.setValue(mainViewModel.getCatchList().getValue());
         mainAdapter.setList(mutableLiveData.getValue());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(mainAdapter);
     }
 
-    private void loadDataFromSharedPreference() {
-        String startB = mainViewModel.sharedPreferenceGetStarButton();
-        String catchB = mainViewModel.sharedPreferenceGetCatchButton();
-        String time = mainViewModel.sharedPreferenceGetTime();
-        boolean doRun = mainViewModel.sharedPreferenceGetIsRunning();
-        boolean catchBEnable = mainViewModel.sharedPreferenceGetCatchButtonIsEnable();
-        startButton.setText(startB);
-        catchButton.setText(catchB);
-        catchButton.setEnabled(catchBEnable);
-        timeStopWatch.setText(time);
-        Log.v("LOAD", time);
-        milliSecond = mainViewModel.sharedPreferenceGetMillisecond();
-        if (doRun) {
-            mainViewModel.stopWatchRunInterface.setMillisecond(System.currentTimeMillis() - milliSecond);
-            mainViewModel.stopWatchRunInterface.sedDoRunning(true);
-            mainViewModel.stopWatchRunInterface.startStopWatchRunning();
-        }
-    }
-
     private void viewInitialization() {
-        milliSecond = 0;
+        Context context = this;
+         WeakReference<Context> contextWeakReference = new WeakReference<>(context);
+
         floatingActionButton = findViewById(R.id.main_floatingActionButton);
         recyclerView = findViewById(R.id.main_recyclerView);
         Toolbar toolbar = findViewById(R.id.main_activity_toolbar);
@@ -117,7 +120,8 @@ public class MainActivity extends AppCompatActivity {
         catchButton.setEnabled(false);
         mainViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         mutableLiveData = new MutableLiveData<>();
-        mainAdapter = new MainAdapterRecyclerView();
+        mainAdapter = new MainAdapterRecyclerView(contextWeakReference);
+        firstTimeRun = true;
     }
 
     private void setFloatingActionButton() {
@@ -127,12 +131,28 @@ public class MainActivity extends AppCompatActivity {
     private void setStartButton() {
         startButton.setOnClickListener(v -> {
             String start = startButton.getText().toString();
+
             if (start.equals(getString(R.string.start_string))) {
-                startStopWatchRun();
+                startButton.setText(getString(R.string.stop_string));
+                catchButton.setEnabled(true);
+                mainViewModel.startStopWatchRun();
             } else if (start.equals(getString(R.string.stop_string))) {
-                stopStopWatchRun();
+                mainViewModel.setTimeRunning(false);
+                mainViewModel.setCatchRunning(false);
+                catchButton.setText(getString(R.string.reset_string));
+                startButton.setText(getString(R.string.resume_string));
+                timeMillisecond = mainViewModel.getTimeMillisecond();
+                catchTimeMillisecond = mainViewModel.getCatchMillisecond();
             } else if (start.equals(getString(R.string.resume_string))) {
-                resumeStopWatchRun();
+                startButton.setText(getString(R.string.stop_string));
+                catchButton.setText(getString(R.string.catch_string));
+                timeMillisecond = System.currentTimeMillis() - timeMillisecond;
+                mainViewModel.resumeStopWatchRun(timeMillisecond);
+
+                boolean catchTimeWasActive = !catchTime.getText().toString().equals(getString(
+                        R.string.default_settings_text_stopwatch));
+                mainViewModel.catchTimeWasActive(catchTimeWasActive, catchTimeMillisecond);
+
             }
         });
     }
@@ -140,82 +160,79 @@ public class MainActivity extends AppCompatActivity {
     private void setCatchButton() {
         catchButton.setOnClickListener(v -> {
             String catchB = catchButton.getText().toString();
+
             if (catchB.equals(getString(R.string.reset_string))) {
                 mainViewModel.resetStopWatchRun();
                 setDefaultTextForViewAndVariables();
 
             } else if (catchB.equals(getString(R.string.catch_string))) {
                 String insertTime;
-                if (mutableLiveData.getValue() == null) {
-                    insertTime = timeStopWatch.getText().toString();
-                } else {
-                    insertTime = catchTime.getText().toString();
-                }
-                mainViewModel.measurementInterface.insertMeasurement(new NoteMeasurement(insertTime));
-                mainViewModel.stopWatchRunInterface.setDoRunSecondMillisecond(true);
-                mainViewModel.stopWatchRunInterface.setSecondMillisecond(System.currentTimeMillis());
-
+                String differencesT;
+                long diff;
+                String overallTime = timeStopWatch.getText().toString();
                 if (mainAdapter.getItemCount() == 0) {
-                    saveMill = mainViewModel.getTMillisecond();
-                    bestTime.setText(timeStopWatch.getText().toString());
-                }else {
-                    if (mainViewModel.getTSecondMill() < saveMill) {
-                        saveMill = mainViewModel.getTSecondMill();
+                    saveMill = mainViewModel.getTimeMillisecond();
+                    insertTime = timeStopWatch.getText().toString();
+                    bestTime.setText(insertTime);
+                    differencesT = "----";
+                } else {
+                    long time = mainViewModel.getCatchMillisecond();
+                    insertTime = catchTime.getText().toString();
+
+                    if (time < saveMill) {
                         bestTime.setText(catchTime.getText());
+                         diff = time - saveMill;
+                        saveMill = time;
+                    }else {
+                        diff = time - saveMill;
                     }
+                    differencesT = mainViewModel.returnDifferencesTime(System.currentTimeMillis()-diff);
                 }
-
-
+                mainViewModel.insertCatch(new CatchTimeTable((mainAdapter.getItemCount()+1) +": "+insertTime,differencesT,overallTime));
+                mainViewModel.setCatchUserMillisecond(System.currentTimeMillis());
+                mainViewModel.setCatchRunning(true);
             }
         });
     }
 
     private void setDefaultTextForViewAndVariables() {
+        mainViewModel.setTimeRunning(false);
         startButton.setText(getString(R.string.start_string));
         catchButton.setText(getString(R.string.catch_string));
         catchButton.setEnabled(false);
         timeStopWatch.setText(getString(R.string.default_settings_text_stopwatch));
         bestTime.setText(R.string.default_settings_text_stopwatch);
         catchTime.setText(R.string.default_settings_text_stopwatch);
-        mainViewModel.measurementInterface.deleteMeasurement();
+        mainViewModel.deleteCatch();
+
     }
 
-    private void startStopWatchRun() {
-        startButton.setText(getString(R.string.stop_string));
-        catchButton.setEnabled(true);
-        mainViewModel.startStopWatchRun();
-    }
-
-    private void resumeStopWatchRun() {
-        startButton.setText(getString(R.string.stop_string));
-        catchButton.setText(getString(R.string.catch_string));
-        milliSecond = System.currentTimeMillis() - milliSecond;
-        mainViewModel.resumeStopWatchRun(milliSecond);
-    }
-
-    private void stopStopWatchRun() {
-        catchButton.setText(getString(R.string.reset_string));
-        startButton.setText(getString(R.string.resume_string));
-        milliSecond = mainViewModel.getTMillisecond();
-        mainViewModel.stopWatchRunInterface.sedDoRunning(false);
-    }
 
     @Override
     protected void onStop() {
+        super.onStop();
+        boolean doRun = mainViewModel.getTimeRunning();
         String startB = startButton.getText().toString();
         String catchB = catchButton.getText().toString();
         String time = timeStopWatch.getText().toString();
-        boolean doRun = mainViewModel.isDoRunning();
+        String beTime = bestTime.getText().toString();
         boolean catchBEnable = catchButton.isEnabled();
-        long millSecond = mainViewModel.getTMillisecond();
-        mainViewModel.savaData(startB, catchB, time, doRun, catchBEnable, millSecond);
-        super.onStop();
+        long millSecond = mainViewModel.getTimeMillisecond();
+        long userMillisecond = mainViewModel.getUserMillisecond();
+
+        String catchT = catchTime.getText().toString();
+        boolean catchRunning = mainViewModel.getCatchRunning();
+        long catchMill = mainViewModel.getCatchMillisecond();
+        long catchUserMill = mainViewModel.getCatchUserMillisecond();
+        MainActDataTable mainTable = new MainActDataTable(time, beTime, startB, catchB, doRun, catchBEnable, millSecond, userMillisecond, catchT, catchRunning, catchMill, catchUserMill, saveMill);
+        mainViewModel.insertMainData(mainTable);
+
     }
 
     @Override
     public void finish() {
-        mainViewModel.stopWatchRunInterface.shutDownExecutors();
-        mainViewModel.measurementInterface.shutdownExecutorMeasurement();
+        mainViewModel.shutDownStopWatchExecutors();
+        mainViewModel.shutdownExecutorDataBase();
         super.finish();
     }
 

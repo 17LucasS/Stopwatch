@@ -9,12 +9,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class ExecutorDataBase implements MeasurementInterface {
+public class ExecutorDataBase {
 
     private static ExecutorService service;
     private static ExecutorDataBase instance;
-    private NoteDaoMeasurement noteDaoMeasurement;
-    private LiveData<List<NoteMeasurement>> listLiveData;
+    private NoteDaoCatchTime noteDaoCatchTime;
+    private LiveData<List<CatchTimeTable>> setCatchList;
+
+    private NoteDaoMainActData noteDaoMainActData;
+    private LiveData<List<MainActDataTable>> setLiveDataMainData;
 
 
     public static synchronized ExecutorDataBase getInstance() {
@@ -29,35 +32,42 @@ public class ExecutorDataBase implements MeasurementInterface {
 
     public void createDataBase(Application application) {
         DataBaseWatch dataBaseWatch = DataBaseWatch.getInstance(application);
-        noteDaoMeasurement = dataBaseWatch.noteDaoMeasurement();
-        this.listLiveData = noteDaoMeasurement.getAllNotes();
+        noteDaoMainActData = dataBaseWatch.noteDaoMainActData();
+        this.setLiveDataMainData = noteDaoMainActData.getLiveDataMainData();
+        noteDaoCatchTime = dataBaseWatch.noteDaoCatch();
+        this.setCatchList = noteDaoCatchTime.getCatchList();
     }
 
-    public LiveData<List<NoteMeasurement>> getAllNotesMeasurement() {
-        return listLiveData;
+    /*   CatchList   */
+
+    public void deleteCatch() {
+        service.execute(() -> noteDaoCatchTime.deleteAllNotes());
+    }
+    public void insertCatch(CatchTimeTable note) {
+        service.execute(() -> noteDaoCatchTime.insert(note));
+    }
+
+    public LiveData<List<CatchTimeTable>> getCatchList() {
+        return setCatchList;
     }
 
 
-    @Override
-    public void deleteMeasurement() {
-        delete();
+    /* MainActData methods */
+    public void insertMainData(MainActDataTable data) {
+        service.execute(() -> noteDaoMainActData.insertMainData(data));
     }
 
-    @Override
-    public void insertMeasurement(NoteMeasurement note) {
-        insert(note);
+    public void deleteAllMainData() {
+        service.execute(() -> noteDaoMainActData.deleteAllMainData());
     }
 
-    private void delete() {
-        service.execute(() -> noteDaoMeasurement.deleteAllNotes());
+    public LiveData<List<MainActDataTable>> getMainDataList() {
+        return setLiveDataMainData;
     }
 
-    private void insert(NoteMeasurement note) {
-        service.execute(() -> noteDaoMeasurement.insert(note));
-    }
 
-    @Override
-    public void shutdownExecutorMeasurement() {
+
+    public void shutdownExecutorDataBase() {
         if (service != null) {
             service.shutdown();
             try {
@@ -68,8 +78,5 @@ public class ExecutorDataBase implements MeasurementInterface {
                 service.shutdownNow();
             }
         }
-
     }
-
-
 }

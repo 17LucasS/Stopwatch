@@ -1,6 +1,8 @@
 package com.example.stopwatch;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
@@ -10,105 +12,174 @@ import java.util.List;
 
 public class MainActivityViewModel extends AndroidViewModel {
 
-    public MeasurementInterface measurementInterface;
-    private final LiveData<List<NoteMeasurement>> listMeasurement;
+    private final LiveData<List<MainActDataTable>> setMainDataList;
 
-    public SharedPreferenceInterface sharedPrefInterface;
-    public StopWatchRunInterface stopWatchRunInterface;
-     private final Repository repository;
-    private final LiveData<String> time;
-    private final LiveData<String> secondTime;
+    private final LiveData<List<CatchTimeTable>> setCatchList;
+    private final Repository repository;
+    private final LiveData<String> setTimeLiveData;
+    private final LiveData<String> setCatchTimeLiveData;
+
     public MainActivityViewModel(@NonNull Application application) {
         super(application);
         this.repository = new Repository(application);
-        time = repository.getTime();
-        secondTime = repository.getSecondTimeList();
-        setRunInterface();
-        setSharedPrefInterface();
+        setMainDataList = repository.getMainDataList();
+        setTimeLiveData = repository.getTimeLiveData();
+        setCatchTimeLiveData = repository.getCatchTimeLiveData();
+        setCatchList = repository.getCatchList();
 
-        listMeasurement = repository.getAllMeasurements();
-        measurementInterface = repository.measurementInterface;
     }
+    /* Main methods*/
 
-    public String sharedPreferenceGetStarButton(){
-        return repository.sharedPreferenceGetStarButton();
-    }
+    public String returnDifferencesTime(long millisecond) {
+        long timeMillisecond;
+        long startMillisecond = System.currentTimeMillis();
+        timeMillisecond = startMillisecond - millisecond;
+        int hours = (int) (timeMillisecond / 3600000);
+        int minutes = (int) ((timeMillisecond % 3600000) / 60000);
+        int seconds = (int) ((timeMillisecond % 60000) / 1000);
+        int milliseconds = (int) (timeMillisecond % 1000) / 10;
 
-    public String sharedPreferenceGetCatchButton(){
-        return repository.sharedPreferenceGetCatchButton();
-    }
-
-    public String sharedPreferenceGetTime(){
-        return repository.sharedPreferenceGetTime();
-    }
-
-    public boolean sharedPreferenceGetIsRunning(){
-        return repository.sharedPreferenceIsRunning();
-    }
-
-    public long sharedPreferenceGetMillisecond() {
-        return repository.sharedPreferenceGetMillisecond();
-    }
-
-    public boolean sharedPreferenceGetCatchButtonIsEnable() {
-        return repository.sharedPreferenceGetCatchButtonIsEnable();
-    }
-    private void setSharedPrefInterface(){
-        this.sharedPrefInterface = repository.setSharedPrefInterface();
-    }
-
-    public void setRunInterface(){
-        this.stopWatchRunInterface = repository.setRunInterface();
-    }
-
-    public boolean isDoRunning(){
-        return repository.isDoRunning();
-    }
-
-    public Long getTMillisecond(){
-        return repository.getTMillisecond();
-    }
-
-    public long getTSecondMill(){
-        return repository.getTSecondMill();
-    }
+        String sign = (hours < 0 || minutes < 0 || seconds < 0 || milliseconds < 0) ? "-" : "+";
 
 
-    public void startStopWatchRun(){
-        stopWatchRunInterface.setMillisecond(System.currentTimeMillis());
-        stopWatchRunInterface.sedDoRunning(true);
-        stopWatchRunInterface.startStopWatchRunning();
+        @SuppressLint("DefaultLocale")
+        String secondTime = String.format("%s%02d:%02d:%02d:%02d", sign, Math.abs(hours),
+                Math.abs(minutes), Math.abs(seconds), Math.abs(milliseconds));
+        String correctTime = secondTime.charAt(0)+secondTime.substring(1).replace("-","0");
+        return correctTime;
     }
 
-    public void resetStopWatchRun(){
-        stopWatchRunInterface.sedDoRunning(false);
+    public void setupStopWatchWhenAppStartRun(boolean timeRunning, long systemTime) {
+        if (timeRunning) {
+            repository.setTimeUserMillisecond(systemTime);
+            repository.setTimeRunning(true);
+            repository.startStopWatchRunning();
+        } else {
+            repository.setTimeRunning(false);
+        }
+
     }
 
-    public void resumeStopWatchRun(Long millisecond){
-        stopWatchRunInterface.setMillisecond(millisecond);
-        stopWatchRunInterface.sedDoRunning(true);
-        stopWatchRunInterface.startStopWatchRunning();
+    public void setupStopWatchWhenAppStartRunCatch(boolean catchRunning, long catchMillisecond, long userMillisecond) {
+        if (catchRunning) {
+            repository.setCatchUserMillisecond(userMillisecond);
+            repository.setCatchRunning(true);
+        }
+
     }
 
-    public void savaData(String startB,String catchB,String time,
-                         boolean doRun,boolean catchBEnable,long millisecond){
-        sharedPrefInterface.saveData(SharedPreferenceData.ST_BUTTON,startB);
-        sharedPrefInterface.saveData(SharedPreferenceData.CATCH_BUTTON,catchB);
-        sharedPrefInterface.saveData(SharedPreferenceData.TIME_TEXT,time);
-        sharedPrefInterface.saveData(SharedPreferenceData.DO_RUNNING_DATA,doRun);
-        sharedPrefInterface.saveData(SharedPreferenceData.MILLISECOND,millisecond);
-        sharedPrefInterface.saveData(SharedPreferenceData.CATCH_BUTTON_ENABLE,catchBEnable);
+    public void catchTimeWasActive(boolean catchTimeWasActive, long catchTimeMillisecond) {
+        if (catchTimeWasActive) {
+            repository.setCatchUserMillisecond(System.currentTimeMillis() - catchTimeMillisecond);
+            repository.setCatchRunning(true);
+        }
     }
 
-    public LiveData<String> getTime(){
-        return time;
+    public void startStopWatchRun() {
+        repository.setTimeUserMillisecond(System.currentTimeMillis());
+        repository.setTimeRunning(true);
+        repository.startStopWatchRunning();
     }
 
-    public LiveData<String> getSecondTimeList(){
-        return secondTime;
-    }
-    public LiveData<List<NoteMeasurement>> getAllMeasurements(){
-        return listMeasurement;
+    public void resetStopWatchRun() {
+        repository.setTimeRunning(false);
+        repository.setCatchRunning(false);
     }
 
+    public void resumeStopWatchRun(Long millisecond) {
+        repository.setTimeUserMillisecond(millisecond);
+        repository.setTimeRunning(true);
+        repository.startStopWatchRunning();
+    }
+
+    /*  MainActData Methods */
+    public void insertMainData(MainActDataTable data) {
+        repository.insertMainData(data);
+    }
+
+    public void deleteAllMainData() {
+        repository.deleteAllMainData();
+    }
+
+    public LiveData<List<MainActDataTable>> getMainDataList() {
+        return setMainDataList;
+    }
+
+
+    /* StopwatchRun methods   */
+    public void startStopWatchRunning() {
+        repository.startStopWatchRunning();
+    }
+
+    public void setTimeRunning(Boolean timeRunning) {
+        repository.setTimeRunning(timeRunning);
+    }
+
+    public void setCatchRunning(boolean catchRunning) {
+        repository.setCatchRunning(catchRunning);
+    }
+
+    public void setCatchUserMillisecond(long catchUserMillisecond) {
+        repository.setCatchUserMillisecond(catchUserMillisecond);
+    }
+
+    public void setTimeUserMillisecond(long timeMillisecond) {
+        repository.setTimeUserMillisecond(timeMillisecond);
+    }
+
+    public LiveData<String> getTimeLiveData() {
+        return setTimeLiveData;
+    }
+
+    public LiveData<String> getCatchTimeLiveData() {
+        return setCatchTimeLiveData;
+    }
+
+
+    public boolean getTimeRunning() {
+        return repository.getTimeRunning();
+    }
+
+    public Long getTimeMillisecond() {
+        return repository.getTimeMillisecond();
+    }
+
+    public long getCatchMillisecond() {
+        return repository.getCatchMillisecond();
+    }
+
+    public long getUserMillisecond() {
+        return repository.getUserMillisecond();
+    }
+
+    public void shutDownStopWatchExecutors() {
+        repository.shutDownStopWatchExecutors();
+    }
+
+    public boolean getCatchRunning() {
+        return repository.getCatchRunning();
+    }
+
+    public long getCatchUserMillisecond() {
+        return repository.getCatchUserMillisecond();
+    }
+
+
+    /*   CatchList    */
+
+    public void deleteCatch() {
+        repository.deleteCatch();
+    }
+
+    public void insertCatch(CatchTimeTable note) {
+        repository.insertCatch(note);
+    }
+
+    public void shutdownExecutorDataBase() {
+        repository.shutdownExecutorDataBase();
+    }
+
+    public LiveData<List<CatchTimeTable>> getCatchList() {
+        return setCatchList;
+    }
 }

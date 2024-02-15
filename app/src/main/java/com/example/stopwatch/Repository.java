@@ -8,79 +8,111 @@ import java.util.List;
 
 
 public class Repository {
-    public MeasurementInterface measurementInterface;
+    private final LiveData<List<MainActDataTable>> setMainDataList;
 
-    private final SharedPreferenceData sharedPreferenceData;
     private final StopwatchRun stopwatchRun;
-    private final LiveData<String> time;
-    private final LiveData<String> secondTime;
-    private final LiveData<List<NoteMeasurement>> listMeasurement;
+    private final LiveData<String> setTimeLiveData;
+    private final LiveData<String> setCatchTimeLiveData;
+    private final LiveData<List<CatchTimeTable>> setCatchList;
+    private final ExecutorDataBase executorDataBase;
 
     public Repository(Application application) {
-        stopwatchRun = StopwatchRun.getInstance();
-        sharedPreferenceData = SharedPreferenceData.getInstance(application);
-        time = stopwatchRun.getTimeList();
-        secondTime = stopwatchRun.getSecondTimeList();
-
-        ExecutorDataBase executorDataBase = ExecutorDataBase.getInstance();
+        executorDataBase = ExecutorDataBase.getInstance();
         executorDataBase.createDataBase(application);
-        listMeasurement = executorDataBase.getAllNotesMeasurement();
-        measurementInterface = executorDataBase;
+        stopwatchRun = StopwatchRun.getInstance();
+        setTimeLiveData = stopwatchRun.getTimeLiveData();
+        setCatchTimeLiveData = stopwatchRun.getCatchTimeLiveData();
+        this.setMainDataList = executorDataBase.getMainDataList();
+        setCatchList = executorDataBase.getCatchList();
     }
 
-    public StopWatchRunInterface setRunInterface() {
-        return stopwatchRun;
+    /*    MainActData Methods */
+    public void insertMainData(MainActDataTable data) {
+        executorDataBase.insertMainData(data);
     }
 
-    public SharedPreferenceInterface setSharedPrefInterface() {
-        return sharedPreferenceData;
+    public void deleteAllMainData() {
+        executorDataBase.deleteAllMainData();
     }
 
-    public String sharedPreferenceGetStarButton() {
-        return sharedPreferenceData.sharedPreferenceGetStarButton();
-    }
-
-    public String sharedPreferenceGetCatchButton() {
-        return sharedPreferenceData.sharedPreferenceGetCatchButton();
-    }
-
-    public String sharedPreferenceGetTime() {
-        return sharedPreferenceData.sharedPreferenceGetTime();
-    }
-
-    public boolean sharedPreferenceIsRunning() {
-        return sharedPreferenceData.sharedPreferenceIsRunning();
-    }
-
-    public long sharedPreferenceGetMillisecond() {
-        return sharedPreferenceData.sharedPreferenceGetMillisecond();
-    }
-
-    public boolean sharedPreferenceGetCatchButtonIsEnable() {
-        return sharedPreferenceData.sharedPreferenceGetCatchButtonIsEnable();
-    }
-
-    public boolean isDoRunning() {
-        return stopwatchRun.isDoRunning();
-    }
-
-    public Long getTMillisecond() {
-        return stopwatchRun.getTMillisecond();
-    }
-    public long getTSecondMill(){
-        return stopwatchRun.getTSecondMill();
+    public LiveData<List<MainActDataTable>> getMainDataList() {
+        return setMainDataList;
     }
 
 
-    public LiveData<String> getTime() {
-        return time;
-    }
-    public LiveData<String> getSecondTimeList(){
-        return secondTime;
+    /*  StopWatchRun methods*/
+
+    public void startStopWatchRunning() {
+        stopwatchRun.startStopWatchRunning();
     }
 
-    public LiveData<List<NoteMeasurement>> getAllMeasurements() {
-        return listMeasurement;
+    public void setTimeRunning(Boolean timeRunning) {
+        stopwatchRun.setTimeRunning(timeRunning);
+    }
+
+    public void setCatchRunning(boolean catchRunning) {
+        stopwatchRun.setCatchRunning(catchRunning);
+    }
+
+    public void setTimeUserMillisecond(long timeMillisecond) {
+        stopwatchRun.setTimeUserMillisecond(timeMillisecond);
+    }
+
+    public void setCatchUserMillisecond(long catchUserMillisecond) {
+        stopwatchRun.setCatchUserMillisecond(catchUserMillisecond);
+    }
+
+    public void shutDownStopWatchExecutors() {
+        stopwatchRun.shutDownStopWatchExecutors();
+    }
+
+
+    public boolean getTimeRunning() {
+        return stopwatchRun.getTimeRunning();
+    }
+
+    public long getTimeMillisecond() {
+        return stopwatchRun.getTimeMillisecond();
+    }
+
+    public long getCatchMillisecond() {
+        return stopwatchRun.getCatchMillisecond();
+    }
+
+
+    public LiveData<String> getTimeLiveData() {
+        return setTimeLiveData;
+    }
+
+    public LiveData<String> getCatchTimeLiveData() {
+        return setCatchTimeLiveData;
+    }
+    public long getUserMillisecond(){
+        return stopwatchRun.getUserMillisecond();
+    }
+    public boolean getCatchRunning(){
+       return stopwatchRun.getCatchRunning();
+    }
+    public long getCatchUserMillisecond(){
+        return stopwatchRun.getCatchUserMillisecond();
+    }
+
+
+    /*      CatchList               */
+    public void deleteCatch() {
+        executorDataBase.deleteCatch();
+    }
+
+    public void insertCatch(CatchTimeTable note) {
+        executorDataBase.insertCatch(note);
+    }
+
+    public void shutdownExecutorDataBase() {
+        executorDataBase.shutdownExecutorDataBase();
+    }
+
+    public LiveData<List<CatchTimeTable>> getCatchList() {
+        return setCatchList;
     }
 
 }

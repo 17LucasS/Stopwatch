@@ -4,13 +4,15 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {NoteMeasurement.class,NoteResults.class},version = 1)
+@Database(entities = {CatchTimeTable.class,NoteResults.class, MainActDataTable.class},version = 1)
 public abstract class DataBaseWatch extends RoomDatabase {
 
     private static DataBaseWatch instance;
 
-    public abstract NoteDaoMeasurement noteDaoMeasurement();
+    public abstract NoteDaoCatchTime noteDaoCatch();
     public abstract NoteDaoResults noteDaoResults();
+
+    public abstract NoteDaoMainActData noteDaoMainActData();
 
     public static synchronized DataBaseWatch getInstance(Context context){
         if (instance ==null){
