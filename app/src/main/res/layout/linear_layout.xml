@@ -22,7 +22,7 @@
         android:textStyle="bold|italic"/>
 
     <TextView
-        android:id="@+id/card_view_czas_ogólny"
+        android:id="@+id/card_view_czas_ogolny"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
