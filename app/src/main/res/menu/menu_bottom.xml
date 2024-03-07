@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/stopWatch"
+        android:title="@string/stopwatch_title"
+        android:icon="@drawable/stopwach_time_24"
+        />
+    <item
+        android:id="@+id/stopWatchLaps"
+        android:title="@string/stopwatch_laps_title"
+        android:icon="@drawable/laps_24"
+        />
+    <item
+        android:id="@+id/workout"
+        android:title="@string/workout_title"
+        android:icon="@drawable/workout_24"
+        />
+    <item
+        android:id="@+id/feature"
+        android:title="@string/feature"
+        android:icon="@drawable/feature_24"
+        />
+
+</menu>

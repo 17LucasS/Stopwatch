@@ -4,17 +4,21 @@ import android.app.Application;
 
 import androidx.lifecycle.LiveData;
 
+import com.example.stopwatch.stopWatch.StopWatchCatchTimeTable;
+import com.example.stopwatch.stopWatch.StopWatchDataTable;
+import com.example.stopwatch.stopWatchLaps.StopWatchLapsCatchTable;
+import com.example.stopwatch.stopWatchLaps.StopWatchLapsDataTable;
+
 import java.util.List;
 
 
 public class Repository {
-    private final LiveData<List<MainActDataTable>> setMainDataList;
 
     private final StopwatchRun stopwatchRun;
     private final LiveData<String> setTimeLiveData;
     private final LiveData<String> setCatchTimeLiveData;
-    private final LiveData<List<CatchTimeTable>> setCatchList;
     private final ExecutorDataBase executorDataBase;
+
 
     public Repository(Application application) {
         executorDataBase = ExecutorDataBase.getInstance();
@@ -22,21 +26,6 @@ public class Repository {
         stopwatchRun = StopwatchRun.getInstance();
         setTimeLiveData = stopwatchRun.getTimeLiveData();
         setCatchTimeLiveData = stopwatchRun.getCatchTimeLiveData();
-        this.setMainDataList = executorDataBase.getMainDataList();
-        setCatchList = executorDataBase.getCatchList();
-    }
-
-    /*    MainActData Methods */
-    public void insertMainData(MainActDataTable data) {
-        executorDataBase.insertMainData(data);
-    }
-
-    public void deleteAllMainData() {
-        executorDataBase.deleteAllMainData();
-    }
-
-    public LiveData<List<MainActDataTable>> getMainDataList() {
-        return setMainDataList;
     }
 
 
@@ -65,8 +54,6 @@ public class Repository {
     public void shutDownStopWatchExecutors() {
         stopwatchRun.shutDownStopWatchExecutors();
     }
-
-
     public boolean getTimeRunning() {
         return stopwatchRun.getTimeRunning();
     }
@@ -79,7 +66,6 @@ public class Repository {
         return stopwatchRun.getCatchMillisecond();
     }
 
-
     public LiveData<String> getTimeLiveData() {
         return setTimeLiveData;
     }
@@ -87,32 +73,81 @@ public class Repository {
     public LiveData<String> getCatchTimeLiveData() {
         return setCatchTimeLiveData;
     }
-    public long getUserMillisecond(){
+
+    public long getUserMillisecond() {
         return stopwatchRun.getUserMillisecond();
     }
-    public boolean getCatchRunning(){
-       return stopwatchRun.getCatchRunning();
+
+    public boolean getCatchRunning() {
+        return stopwatchRun.getCatchRunning();
     }
-    public long getCatchUserMillisecond(){
+
+    public long getCatchUserMillisecond() {
         return stopwatchRun.getCatchUserMillisecond();
     }
 
 
-    /*      CatchList               */
-    public void deleteCatch() {
-        executorDataBase.deleteCatch();
+    /* StopWatch  methods*/
+    public void insertTimeStopWatch(StopWatchCatchTimeTable note) {
+        executorDataBase.insertTimeStopWatch(note);
     }
 
-    public void insertCatch(CatchTimeTable note) {
-        executorDataBase.insertCatch(note);
+    public void deleteAllTimeStopWatch() {
+        executorDataBase.deleteAllTimeStopWatch();
+    }
+
+    public LiveData<List<StopWatchCatchTimeTable>> getAllNoteTimeStopWatch() {
+        return executorDataBase.getAllNoteStopWatchTime();
+    }
+
+    public void insertStopWatchData(StopWatchDataTable note) {
+        executorDataBase.insertStopWatchData(note);
+    }
+
+    public void deleteStopWatchData() {
+        executorDataBase.deleteStopWatchData();
+    }
+
+    public LiveData<List<StopWatchDataTable>> getAllNoteStopWatchData() {
+        return executorDataBase.getAllNoteStopWatchData();
+    }
+
+    /* StopWatchLaps */
+
+    public void insertDataStopWatchLaps(StopWatchLapsDataTable table) {
+        executorDataBase.insertStopWatchLapsData(table);
+    }
+
+    public void deleteStopWatchLapsData() {
+        executorDataBase.deleteStopWatchLapsData();
+    }
+    public LiveData<List<StopWatchLapsDataTable>> getLiveDataStopWatchLapsData(){
+        return executorDataBase.getLiveDataStopWatchLapsData();
+    }
+
+    public void insertStopWatchLapsCatch(StopWatchLapsCatchTable table){
+        executorDataBase.insertStopWatchLapsCatch(table);
+    }
+
+
+    public void deleteStopWatchLapsCatch(){
+        executorDataBase.deleteStopWatchLapsCatch();
+    }
+
+    public LiveData<List<StopWatchLapsCatchTable>> getLiveDataStopWatchLapsCatch(){
+        return executorDataBase.getLiveDataStopWatchLapsCatch();
+    }
+
+
+    /* DataBase*/
+
+    public void checkIsServiceIsShutDownDataBase(){
+        executorDataBase.checkIsServiceIsShutDownDataBase();
     }
 
     public void shutdownExecutorDataBase() {
         executorDataBase.shutdownExecutorDataBase();
     }
-
-    public LiveData<List<CatchTimeTable>> getCatchList() {
-        return setCatchList;
-    }
-
 }
+
+

@@ -1,34 +1,31 @@
-package com.example.stopwatch;
-
+package com.example.stopwatch.stopWatchLaps;
 import android.annotation.SuppressLint;
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.example.stopwatch.Repository;
+
 import java.util.List;
 
-public class MainActivityViewModel extends AndroidViewModel {
+public class StopWatchLapsMvvM extends AndroidViewModel {
 
-    private final LiveData<List<MainActDataTable>> setMainDataList;
 
-    private final LiveData<List<CatchTimeTable>> setCatchList;
     private final Repository repository;
     private final LiveData<String> setTimeLiveData;
     private final LiveData<String> setCatchTimeLiveData;
-
-    public MainActivityViewModel(@NonNull Application application) {
+    public StopWatchLapsMvvM(@NonNull Application application) {
         super(application);
+
         this.repository = new Repository(application);
-        setMainDataList = repository.getMainDataList();
+
         setTimeLiveData = repository.getTimeLiveData();
         setCatchTimeLiveData = repository.getCatchTimeLiveData();
-        setCatchList = repository.getCatchList();
-
     }
-    /* Main methods*/
+
+    /* StopWatchLaps fragment*/
 
     public String returnDifferencesTime(long millisecond) {
         long timeMillisecond;
@@ -45,22 +42,20 @@ public class MainActivityViewModel extends AndroidViewModel {
         @SuppressLint("DefaultLocale")
         String secondTime = String.format("%s%02d:%02d:%02d:%02d", sign, Math.abs(hours),
                 Math.abs(minutes), Math.abs(seconds), Math.abs(milliseconds));
-        String correctTime = secondTime.charAt(0)+secondTime.substring(1).replace("-","0");
-        return correctTime;
+        return secondTime.charAt(0)+secondTime.substring(1).replace("-","0");
     }
 
-    public void setupStopWatchWhenAppStartRun(boolean timeRunning, long systemTime) {
+    public void setupStopWatchRunWhenAppWasRun(boolean timeRunning, long systemTime) {
         if (timeRunning) {
             repository.setTimeUserMillisecond(systemTime);
-            repository.setTimeRunning(true);
-            repository.startStopWatchRunning();
+            startStopWatchRun();
         } else {
             repository.setTimeRunning(false);
         }
 
     }
 
-    public void setupStopWatchWhenAppStartRunCatch(boolean catchRunning, long catchMillisecond, long userMillisecond) {
+    public void setupStopWatchRunWhenAppWasRunCatch(boolean catchRunning, long catchMillisecond, long userMillisecond) {
         if (catchRunning) {
             repository.setCatchUserMillisecond(userMillisecond);
             repository.setCatchRunning(true);
@@ -78,7 +73,7 @@ public class MainActivityViewModel extends AndroidViewModel {
     public void startStopWatchRun() {
         repository.setTimeUserMillisecond(System.currentTimeMillis());
         repository.setTimeRunning(true);
-        repository.startStopWatchRunning();
+       repository.startStopWatchRunning();
     }
 
     public void resetStopWatchRun() {
@@ -92,24 +87,9 @@ public class MainActivityViewModel extends AndroidViewModel {
         repository.startStopWatchRunning();
     }
 
-    /*  MainActData Methods */
-    public void insertMainData(MainActDataTable data) {
-        repository.insertMainData(data);
-    }
-
-    public void deleteAllMainData() {
-        repository.deleteAllMainData();
-    }
-
-    public LiveData<List<MainActDataTable>> getMainDataList() {
-        return setMainDataList;
-    }
 
 
     /* StopwatchRun methods   */
-    public void startStopWatchRunning() {
-        repository.startStopWatchRunning();
-    }
 
     public void setTimeRunning(Boolean timeRunning) {
         repository.setTimeRunning(timeRunning);
@@ -165,21 +145,39 @@ public class MainActivityViewModel extends AndroidViewModel {
     }
 
 
-    /*   CatchList    */
-
-    public void deleteCatch() {
-        repository.deleteCatch();
+    /* DataBase*/
+    public void insertDataStopWatchLaps(StopWatchLapsDataTable table){
+        repository.insertDataStopWatchLaps(table);
     }
 
-    public void insertCatch(CatchTimeTable note) {
-        repository.insertCatch(note);
+    void deleteStopWatchLapsData(){
+        repository.deleteStopWatchLapsData();
     }
+
+    public LiveData<List<StopWatchLapsDataTable>> getLiveDataStopWatchLapsData(){
+        return repository.getLiveDataStopWatchLapsData();
+    }
+
+    public void insertStopWatchLapsCatch(StopWatchLapsCatchTable table){
+        repository.insertStopWatchLapsCatch(table);
+    }
+
+
+    public void deleteStopWatchLapsCatch(){
+        repository.deleteStopWatchLapsCatch();
+    }
+
+    public LiveData<List<StopWatchLapsCatchTable>> getLiveDataStopWatchLapsCatch(){
+        return repository.getLiveDataStopWatchLapsCatch();
+    }
+
+
 
     public void shutdownExecutorDataBase() {
         repository.shutdownExecutorDataBase();
     }
 
-    public LiveData<List<CatchTimeTable>> getCatchList() {
-        return setCatchList;
+    public void checkIsServiceIsShutDownDataBase(){
+        repository.checkIsServiceIsShutDownDataBase();
     }
 }

@@ -1,12 +1,10 @@
-package com.example.stopwatch;
+package com.example.stopwatch.stopWatchLaps;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName ="catch_time_table")
-public class CatchTimeTable {
-    @ColumnInfo(name = "time_column")
+@Entity(tableName ="stop_watch_laps_catch_table")
+public class StopWatchLapsCatchTable {
     private String catchTime;
     private String timeDifferences;
     private String overallTime;
@@ -15,7 +13,7 @@ public class CatchTimeTable {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
-    public CatchTimeTable(String catchTime,String timeDifferences,String overallTime) {
+    public StopWatchLapsCatchTable(String catchTime, String timeDifferences, String overallTime) {
         this.catchTime = catchTime;
         this.timeDifferences = timeDifferences;
         this.overallTime = overallTime;

@@ -8,4 +8,20 @@
     <string name="string_time">%02d:%02d:%02d:%02d</string>
     <string name="default_settings_text_stopwatch">00:00:00:00</string>
     <string name="save_records">Save records</string>
+    <string name="stopwatch_title">StopWatch</string>
+    <string name="workout_title">workout</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="stopwatch_laps_title">StopWatch laps</string>
+
+    <string name="stoper_title">Stoper</string>
+    <string name="stoper_laps_title">Stoper okrążenia</string>
+    <string name="stoper_feature_title">Stoper przyszły</string>
+    <string name="save">Zapis</string>
+    <string name="empty_records">\??:??:??:??</string>
+    <string name="main_image">main image</string>
+    <string name="feature">feature</string>
+    <string name="ca_kowity_czas">Całkowity czas</string>
+    <string name="czas_okr_enia">Czas okrążenia</string>
+    <string name="najepszy_czas">Najepszy czas:</string>
 </resources>

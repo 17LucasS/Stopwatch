@@ -1,33 +1,25 @@
-package com.example.stopwatch;
+package com.example.stopwatch.stopWatchLaps;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.RecyclerView;
+import com.example.stopwatch.R;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Objects;
 
-public class MainAdapterRecyclerView extends RecyclerView.Adapter<MainAdapterRecyclerView.ViewHolder> {
+public class RecyclerViewAdapterStopWatchLaps extends RecyclerView.Adapter<RecyclerViewAdapterStopWatchLaps.ViewHolder> {
 
-    private final MutableLiveData<List<CatchTimeTable>> list = new MutableLiveData<>();
+    private final MutableLiveData<List<StopWatchLapsCatchTable>> list = new MutableLiveData<>();
     WeakReference<Context> contextWeakReference;
-
-    public void setList(List<CatchTimeTable> list) {
-        this.list.setValue(list);
-    }
-
-    public MainAdapterRecyclerView(WeakReference<Context> contextWeakReference) {
+    public RecyclerViewAdapterStopWatchLaps(WeakReference<Context> contextWeakReference){
         this.contextWeakReference = contextWeakReference;
     }
 
@@ -38,9 +30,6 @@ public class MainAdapterRecyclerView extends RecyclerView.Adapter<MainAdapterRec
         return new ViewHolder(view);
     }
 
-
-
-    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.timeText.setText(Objects.requireNonNull(list.getValue()).get(position).getCatchTime());
@@ -61,15 +50,17 @@ public class MainAdapterRecyclerView extends RecyclerView.Adapter<MainAdapterRec
         } else return 0;
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView timeText,differencesTime,overallTime;
+    public void setList(List<StopWatchLapsCatchTable> value) {
+        list.setValue(value);
+    }
 
+    static class ViewHolder extends RecyclerView.ViewHolder{
+        TextView timeText,differencesTime,overallTime;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             timeText = itemView.findViewById(R.id.card_view_text_View);
             differencesTime = itemView.findViewById(R.id.card_view_straty);
-            overallTime = itemView.findViewById(R.id.card_view_czas_ogólny);
-
+            overallTime = itemView.findViewById(R.id.card_view_czas_ogolny);
         }
     }
 }

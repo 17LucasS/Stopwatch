@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 public class StopwatchRun {
     private static StopwatchRun instance;
-    private static ScheduledExecutorService service;
+    public static ScheduledExecutorService service;
     private boolean timeRunning;
     private long userMillisecond;
     private long catchUserMillisecond, catchMillisecond;
@@ -24,13 +24,14 @@ public class StopwatchRun {
         if (instance == null) {
             instance = new StopwatchRun();
         }
-        if (service == null) {
+        if (service == null || service.isTerminated() || service.isShutdown()) {
             service = Executors.newScheduledThreadPool(1);
         }
         return instance;
     }
 
     public void startStopWatchRunning() {
+        checkIsServiceIsShutDownStopWatchRun();
         Runnable task = () -> {
             if (timeRunning) {
                 long startMillisecond = System.currentTimeMillis();
@@ -58,10 +59,20 @@ public class StopwatchRun {
             }
         };
         if (timeRunning) {
-            service.scheduleAtFixedRate(task, 0, 70, TimeUnit.MILLISECONDS);
+            service.scheduleAtFixedRate(task, 0, 50, TimeUnit.MILLISECONDS);
         } else {
             service.shutdown();
         }
+    }
+
+
+    public void checkIsServiceIsShutDownStopWatchRun() {
+        if (service != null) {
+            if (service.isTerminated() || service.isShutdown()) {
+                service = Executors.newScheduledThreadPool(1);
+            }
+        }
+
     }
 
     public long getCatchUserMillisecond() {

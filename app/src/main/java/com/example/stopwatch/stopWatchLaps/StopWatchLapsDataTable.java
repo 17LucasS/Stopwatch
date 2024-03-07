@@ -1,9 +1,11 @@
-package com.example.stopwatch;
+package com.example.stopwatch.stopWatchLaps;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-@Entity(tableName = "mainActData_table")
-public class MainActDataTable {
+
+@Entity(tableName = "stop_watch_laps_data_table")
+public class StopWatchLapsDataTable {
+
     @PrimaryKey
     private int id;
     private String time, bestTime;
@@ -17,7 +19,7 @@ public class MainActDataTable {
     private boolean timeRunning,catchTimeIsEnable;
     private long timeMillisecond,userMillisecond;
 
-    public MainActDataTable(String time, String bestTime,
+    public StopWatchLapsDataTable(String time, String bestTime,
                             String startButton, String catchButt, boolean timeRunning,
                             boolean catchTimeIsEnable, long timeMillisecond,long userMillisecond,
                             String catchTime,boolean catchRunning,long catchMillisecond,long catchUserMillisecond,long saveMill) {
@@ -148,4 +150,5 @@ public class MainActDataTable {
     public void setSaveMill(long saveMill) {
         this.saveMill = saveMill;
     }
+
 }
